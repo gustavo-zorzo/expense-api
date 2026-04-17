@@ -1,0 +1,26 @@
+{
+  "name": "expense-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "@fastify/sensible": "^6.0.4",
+    "@prisma/client": "^7.7.0",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.8.5",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "prisma": "^7.7.0",
+    "typescript": "^6.0.3",
+    "tsx": "^4.21.0"
+  }
+}
