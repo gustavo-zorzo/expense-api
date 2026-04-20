@@ -5,6 +5,7 @@ import {
   idParamSchema,
   updateExpenseSchema,
 } from '../schemas/expense.js';
+import { validateID } from '../services/expense.js';
 
 export function expenseRoutes(fastify: FastifyInstance) {
   fastify.get('/expenses', async (request, reply) => {
@@ -25,56 +26,51 @@ export function expenseRoutes(fastify: FastifyInstance) {
   });
   fastify.get('/expenses/:id', async (request, reply) => {
     try {
-      const id = idParamSchema.parse(request.params);
-      const expense = await prisma.expense.findUnique({ where: id });
-      if (expense === null) {
-        return reply
-          .status(404)
-          .send({ error: 'ID not found', status: 'Error Ocurred' });
-      }
+      const expense = await validateID(request.params as { id: string });
       reply.status(200).send({ expense: expense });
     } catch (e) {
       if (e instanceof Error) {
+        if (e.message === 'ID not found') {
+          return reply
+            .status(404)
+            .send({ error: e.message, status: 'Error Ocurred' });
+        }
         reply.status(400).send({ error: e.message, status: 'Error Ocurred' });
       }
     }
   });
   fastify.put('/expenses/:id', async (request, reply) => {
     try {
-      const id = idParamSchema.parse(request.params);
-      const expense = await prisma.expense.findUnique({ where: id });
+      const expense = await validateID(request.params as { id: string });
       const body = updateExpenseSchema.parse(request.body);
-      if (expense === null) {
-        return reply
-          .status(404)
-          .send({ error: 'ID not found', status: 'Error Ocurred' });
-      }
       await prisma.expense.update({
-        where: id,
+        where: { id: expense.id },
         data: body,
       });
       reply.status(200).send({ status: 'Succesfully Updated' });
     } catch (e) {
       if (e instanceof Error) {
-        reply.status(400).send({ error: e.message, status: 'Erro Ocurred' });
+        if (e.message === 'ID not found') {
+          return reply
+            .status(404)
+            .send({ error: e.message, status: 'Error Ocurred' });
+        }
+        reply.status(400).send({ error: e.message, status: 'Error Ocurred' });
       }
     }
   });
   fastify.delete('/expenses/:id', async (request, reply) => {
     try {
-      const id = idParamSchema.parse(request.params);
-      const expense = await prisma.expense.findUnique({
-        where: id,
-      });
-      if (expense === null) {
-        return reply
-          .status(404)
-          .send({ error: 'ID note found', status: 'Error Ocurred' });
-      }
-      await prisma.expense.delete({ where: id });
+      const expense = await validateID(request.params as { id: string });
+      await prisma.expense.delete({ where: { id: expense.id } });
       reply.status(200).send({ status: 'Sucessfully Deleted' });
     } catch (e) {
       if (e instanceof Error) {
+        if (e.message === 'ID not found') {
+          return reply
+            .status(404)
+            .send({ error: e.message, status: 'Error Ocurred' });
+        }
         reply.status(400).send({ error: e.message, status: 'Error Ocurred' });
       }
     }
