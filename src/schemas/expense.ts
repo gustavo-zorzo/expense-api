@@ -4,7 +4,7 @@ export const createExpenseSchema = z.object({
   title: z.string(),
   amount: z.number(),
   category: z.string(),
-  date: z.date(),
+  date: z.coerce.date(),
 });
 
 export const updateExpenseSchema = createExpenseSchema.partial();
