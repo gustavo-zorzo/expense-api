@@ -60,4 +60,23 @@ export function expenseRoutes(fastify: FastifyInstance) {
       }
     }
   });
+  fastify.delete('/expenses/:id', async (request, reply) => {
+    try {
+      const id = idParamSchema.parse(request.params);
+      const expense = await prisma.expense.findUnique({
+        where: id,
+      });
+      if (expense === null) {
+        return reply
+          .status(404)
+          .send({ error: 'ID note found', status: 'Error Ocurred' });
+      }
+      await prisma.expense.delete({ where: id });
+      reply.status(200).send({ status: 'Sucessfully Deleted' });
+    } catch (e) {
+      if (e instanceof Error) {
+        reply.status(400).send({ error: e.message, status: 'Error Ocurred' });
+      }
+    }
+  });
 }
